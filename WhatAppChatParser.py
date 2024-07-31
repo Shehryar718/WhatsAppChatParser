@@ -1,4 +1,5 @@
 import re
+import json
 import pandas as pd
 from typing import List, Tuple
 
@@ -103,6 +104,51 @@ class WhatsAppChatParser:
         df = self.to_frame()
         df.to_csv(path, index=False)
 
-    def to_json(self, path: str) -> None:
+    def to_jsonl(self, path: str) -> None:
         df = self.to_frame()
         df.to_json(path, orient='records', lines=True)
+
+    def export_prompt_completion(self, path: str) -> None:
+        if not path.endswith('.jsonl'):
+            raise ValueError("Please provide a valid JSONL (.jsonl) file path.")
+        
+        prompt: List[str] = []
+        completion: List[str] = []
+
+        for idx, message in enumerate(self.message_list):
+            if idx%2 == 0:
+                prompt.append(message)
+            else:
+                completion.append(message)
+
+        df = pd.DataFrame(zip(prompt, completion), columns=['prompt', 'completion'])
+        df.to_json(path, orient='records', lines=True)
+
+    def export_user_assistant(self, path: str) -> None:
+        if not path.endswith('.jsonl'):
+            raise ValueError("Please provide a valid JSONL (.jsonl) file path.")
+        
+        def create_dataset(user, assistant):
+            SYSTEM_MESSAGE = "You are a helpful assistant."
+            return {
+                "messages": [
+                    {"role": "system", "content": SYSTEM_MESSAGE},
+                    {"role": "user", "content": user},
+                    {"role": "assistant", "content": assistant},
+                ]
+            }
+
+        user: List[str] = []
+        assistant: List[str] = []
+
+        for idx, message in enumerate(self.message_list):
+            if idx%2 == 0:
+                user.append(message)
+            else:
+                assistant.append(message)
+
+        df = pd.DataFrame(zip(user, assistant), columns=['user', 'assistant'])
+        with open(path, "w") as f:
+            for _, row in df.iterrows():
+                string = json.dumps(create_dataset(row["user"], row["assistant"]))
+                f.write(string + "\n")
