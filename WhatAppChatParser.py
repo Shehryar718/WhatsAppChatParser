@@ -1,7 +1,7 @@
 import re
 import json
 import pandas as pd
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 class WhatsAppChatParser:
     def __init__(self, path: str, turns: bool = True):
@@ -152,3 +152,21 @@ class WhatsAppChatParser:
             for _, row in df.iterrows():
                 string = json.dumps(create_dataset(row["user"], row["assistant"]))
                 f.write(string + "\n")
+
+    def export_user_assistant_single(self, path: str) -> None:
+        if not path.endswith('.jsonl'):
+            raise ValueError("Please provide a valid JSONL (.jsonl) file path.")
+        
+        dataset: Dict[str, List[Dict[str, str]]] = {
+            "messages": []
+        }
+
+        for subject, message in zip(self.subject_list, self.message_list):
+            if subject == self.get_main_subject():
+                dataset["messages"].append({"role": "user", "content": message})
+            else:
+                dataset["messages"].append({"role": "assistant", "content": message})
+
+        with open(path, "w") as f:
+            string = json.dumps(dataset)
+            f.write(string + "\n")

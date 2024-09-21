@@ -8,7 +8,7 @@ The `WhatsAppChatParser` is a Python class designed to parse and process exporte
 
 - **Parsing**: Extracts and structures chat messages by sender and timestamp.
 - **Formatting**: Groups consecutive messages from the same sender.
-- **Exporting**: Allows exporting parsed data to CSV, JSONL, and structured prompt-completion formats for training AI models.
+- **Exporting**: Allows exporting parsed data to CSV, JSONL, and structured prompt-completion and user-assistant formats for training AI models.
 
 ## Usage
 
@@ -89,6 +89,7 @@ df = parser.to_frame()
 parser.to_csv('chat_output.csv')
 parser.export_prompt_completion('chat_prompts.jsonl')
 parser.export_user_assistant('chat_user_assistant.jsonl')
+parser.export_user_assistant_single('chat_user_assistant_single.jsonl')
 ```
 
 ## Error Handling
