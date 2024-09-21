@@ -359,5 +359,4 @@ class WhatsAppChatParser:
                 dataset["messages"].append({"role": "assistant", "content": message})
 
         with open(path, "w") as f:
-            string = json.dumps(dataset)
-            f.write(string + "\n")
+            json.dump(dataset, f)
